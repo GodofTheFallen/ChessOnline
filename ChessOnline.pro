@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -32,6 +33,8 @@ SOURCES += \
         Chessman/chessmanpawn.cpp \
         Chessman/chessmanqueen.cpp \
         Chessman/chessmanrook.cpp \
+        Network/chessconnection.cpp \
+        Network/chessmessage.cpp \
         chessboard.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -46,6 +49,8 @@ HEADERS += \
         Chessman/chessmanqueen.h \
         Chessman/chessmanrook.h \
         Chessman/chessmen.h \
+        Network/chessconnection.h \
+        Network/chessmessage.h \
         chessboard.h \
         mainwindow.h \
         paintchessboard.h
