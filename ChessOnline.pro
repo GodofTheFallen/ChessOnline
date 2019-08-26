@@ -25,11 +25,30 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        Chessman/abstractchessman.cpp \
+        Chessman/chessmanbishop.cpp \
+        Chessman/chessmanking.cpp \
+        Chessman/chessmanknight.cpp \
+        Chessman/chessmanpawn.cpp \
+        Chessman/chessmanqueen.cpp \
+        Chessman/chessmanrook.cpp \
+        chessboard.cpp \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        paintchessboard.cpp
 
 HEADERS += \
-        mainwindow.h
+        Chessman/abstractchessman.h \
+        Chessman/chessmanbishop.h \
+        Chessman/chessmanking.h \
+        Chessman/chessmanknight.h \
+        Chessman/chessmanpawn.h \
+        Chessman/chessmanqueen.h \
+        Chessman/chessmanrook.h \
+        Chessman/chessmen.h \
+        chessboard.h \
+        mainwindow.h \
+        paintchessboard.h
 
 FORMS += \
         mainwindow.ui
