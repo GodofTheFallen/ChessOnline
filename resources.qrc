@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Chessman/pic/black_bishop.png</file>
+        <file>Chessman/pic/black_king.png</file>
+        <file>Chessman/pic/black_knight.png</file>
+        <file>Chessman/pic/black_pawn.png</file>
+        <file>Chessman/pic/black_queen.png</file>
+        <file>Chessman/pic/black_rook.png</file>
+        <file>Chessman/pic/white_bishop.png</file>
+        <file>Chessman/pic/white_king.png</file>
+        <file>Chessman/pic/white_knight.png</file>
+        <file>Chessman/pic/white_pawn.png</file>
+        <file>Chessman/pic/white_queen.png</file>
+        <file>Chessman/pic/white_rook.png</file>
+    </qresource>
+</RCC>

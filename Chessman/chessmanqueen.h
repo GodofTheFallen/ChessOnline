@@ -6,7 +6,10 @@
 class ChessmanQueen : public AbstractChessman
 {
 public:
-    ChessmanQueen();
+    ChessmanQueen(const ChessColor &_color, const POS &_pos);
+    QList<MoveInfo> getMoves(AbstractChessman *[]) const;
+    static const POS mv[8];
+    QPixmap getPic();
 };
 
 #endif // CHESSMANQUEEN_H

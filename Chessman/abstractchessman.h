@@ -1,21 +1,44 @@
 #ifndef ABSTRACTCHESSMAN_H
 #define ABSTRACTCHESSMAN_H
 
-#include <QObject>
+#include <QPixmap>
+#include "chessinfo.h"
 
-typedef enum{KING,QUEEN,BISHOP,KNIGHT,ROOK,PAWN} ChessType;
-
-typedef QPair<int,int> POS;
-
-class AbstractChessman : public QObject
+class AbstractChessman
 {
-    Q_OBJECT
+protected:
+    ChessType type;
+    ChessColor color;
+    POS pos;
+
 public:
-    explicit AbstractChessman(QObject *parent = nullptr);
+    explicit AbstractChessman(const ChessType &_type, const ChessColor &_color, const POS &_pos);
+    virtual ~AbstractChessman();
+    ChessType getType() const;
 
-signals:
+    ChessColor getColor() const;
 
-public slots:
+    POS getPos() const;
+    void setPos(const POS &value);
+
+    virtual QList<MoveInfo> getMoves(AbstractChessman *[]) const = 0;
+
+    virtual QPixmap getPic() = 0;
+
 };
+
+ChessInfo toChessInfo(AbstractChessman*);
+
+int curve(int,int);
+
+int curve(POS);
+
+int check(int,int);
+
+bool check(POS);
+
+POS operator + (const POS &P1,const POS &P2);
+
+POS operator += (POS &P1,const POS &P2);
 
 #endif // ABSTRACTCHESSMAN_H

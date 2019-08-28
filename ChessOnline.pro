@@ -27,6 +27,7 @@ CONFIG += c++11
 
 SOURCES += \
         Chessman/abstractchessman.cpp \
+        Chessman/chessinfo.cpp \
         Chessman/chessmanbishop.cpp \
         Chessman/chessmanking.cpp \
         Chessman/chessmanknight.cpp \
@@ -35,13 +36,16 @@ SOURCES += \
         Chessman/chessmanrook.cpp \
         Network/chessconnection.cpp \
         Network/chessmessage.cpp \
+        Network/connectserver.cpp \
+        Network/startserver.cpp \
+        Network/waiting.cpp \
         chessboard.cpp \
         main.cpp \
-        mainwindow.cpp \
-        paintchessboard.cpp
+        mainwindow.cpp
 
 HEADERS += \
         Chessman/abstractchessman.h \
+        Chessman/chessinfo.h \
         Chessman/chessmanbishop.h \
         Chessman/chessmanking.h \
         Chessman/chessmanknight.h \
@@ -51,14 +55,22 @@ HEADERS += \
         Chessman/chessmen.h \
         Network/chessconnection.h \
         Network/chessmessage.h \
+        Network/connectserver.h \
+        Network/startserver.h \
+        Network/waiting.h \
         chessboard.h \
-        mainwindow.h \
-        paintchessboard.h
+        mainwindow.h
 
 FORMS += \
+        Network/connectserver.ui \
+        Network/startserver.ui \
+        Network/waiting.ui \
         mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources.qrc
