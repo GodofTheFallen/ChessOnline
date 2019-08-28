@@ -1,7 +1,7 @@
 #ifndef CHESSBOARD_H
 #define CHESSBOARD_H
 
-#include "Chessman/chessmen.h"
+#include "Chessman/chessmen"
 #include "Network/chessmessage.h"
 
 #include <QWidget>

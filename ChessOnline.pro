@@ -52,7 +52,7 @@ HEADERS += \
         Chessman/chessmanpawn.h \
         Chessman/chessmanqueen.h \
         Chessman/chessmanrook.h \
-        Chessman/chessmen.h \
+        Chessman/chessmen \
         Network/chessconnection.h \
         Network/chessmessage.h \
         Network/connectserver.h \
