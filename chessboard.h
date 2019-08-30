@@ -21,7 +21,6 @@ private:
 
     AbstractChessman *Board[64];
 
-    ChessColor Player;
     AbstractChessman *ChosenChessman;
 
     QList<MoveInfo> MoveList;
@@ -31,6 +30,7 @@ private:
 public:
     explicit ChessBoard(QWidget *parent = nullptr);
     ~ChessBoard();
+    ChessColor Player;
     static const QPoint OPos;
     static const int GridWidth;
     static const double XScale;
@@ -41,12 +41,20 @@ public:
     static const QColor ColorPro,ColorProE;
     static const QColor ColorCas,ColorCasE;
 
+    QList<ChessInfo> getChessInfoList() const;
+
+    QString getRemBoard();
+
+    int getTIME_MAX() const;
+
 signals:
     void timeDisplay(int);
-    void sendMsg(ChessMessage);
+    void sendMsg(const ChessMessage &);
 
 public slots:
     void startOperating();
+
+    void stopOperating();
 
     void setTIME_MAX(int value);
 
@@ -54,14 +62,16 @@ public slots:
 
     void saveToMsg();
 
+    void receiveMsg(ChessMessage);
+
     void initialize();
 
 private slots:
     void timeDec();
 
-    void stopOperating();
-
     void timeUseUp();
+
+    void handleMove(MoveInfo);
 
 protected:
     void paintEvent(QPaintEvent *event);

@@ -11,14 +11,18 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>国际象棋</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/chess.ico</normaloff>:/chess.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QLCDNumber" name="lcdNumber_Timer">
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>50</y>
+      <y>90</y>
       <width>51</width>
       <height>31</height>
      </rect>
@@ -30,14 +34,17 @@
      </font>
     </property>
     <property name="digitCount">
-     <number>2</number>
+     <number>3</number>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_Submit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>120</y>
+      <y>150</y>
       <width>51</width>
       <height>51</height>
      </rect>
@@ -50,7 +57,7 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>30</y>
+      <y>70</y>
       <width>71</width>
       <height>16</height>
      </rect>
@@ -66,7 +73,7 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>190</y>
+      <y>220</y>
       <width>51</width>
       <height>131</height>
      </rect>
@@ -122,6 +129,25 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QLabel" name="label_status">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>30</y>
+      <width>51</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+      <pointsize>18</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -132,14 +158,31 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_Start">
+   <widget class="QMenu" name="menu_setting">
     <property name="title">
-     <string>开始游戏</string>
+     <string>选项</string>
+    </property>
+    <addaction name="action_setting"/>
+   </widget>
+   <widget class="QMenu" name="menu_network">
+    <property name="title">
+     <string>网络设置</string>
     </property>
     <addaction name="action_host"/>
     <addaction name="action_connect"/>
    </widget>
-   <addaction name="menu_Start"/>
+   <widget class="QMenu" name="menu_remain">
+    <property name="title">
+     <string>残局设置</string>
+    </property>
+    <addaction name="action_loaddefault"/>
+    <addaction name="action_load"/>
+    <addaction name="separator"/>
+    <addaction name="action_save"/>
+   </widget>
+   <addaction name="menu_setting"/>
+   <addaction name="menu_network"/>
+   <addaction name="menu_remain"/>
   </widget>
   <action name="action_host">
    <property name="text">
@@ -151,8 +194,30 @@
     <string>连接主机</string>
    </property>
   </action>
+  <action name="action_setting">
+   <property name="text">
+    <string>游戏设置</string>
+   </property>
+  </action>
+  <action name="action_load">
+   <property name="text">
+    <string>载入残局</string>
+   </property>
+  </action>
+  <action name="action_save">
+   <property name="text">
+    <string>保存残局</string>
+   </property>
+  </action>
+  <action name="action_loaddefault">
+   <property name="text">
+    <string>默认棋局</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

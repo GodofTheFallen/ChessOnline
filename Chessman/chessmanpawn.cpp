@@ -24,7 +24,7 @@ QList<MoveInfo> ChessmanPawn::getMoves(AbstractChessman *board[]) const
     POS cur = pos + forw;
     if (check(cur))
         if (!board[curve(cur)]) {
-            if (cur.first == 1 || cur.first == 8) Q.append(MoveInfo(MoveType::PROMOTION,cur));
+            if (cur.second == 1 || cur.second == 8) Q.append(MoveInfo(MoveType::PROMOTION,cur));
             else Q.append(MoveInfo(MoveType::MOVE,cur));
             if (pos.second == orirow && !board[curve(cur + forw)]) Q.append(MoveInfo(MoveType::MOVE,cur+forw));
         }
@@ -33,7 +33,7 @@ QList<MoveInfo> ChessmanPawn::getMoves(AbstractChessman *board[]) const
         if (!check(cur)) continue;
         if (!board[curve(cur)]) continue;
         if (board[curve(cur)]->getColor() != getColor()) {
-            if (cur.first == 1 || cur.first == 8) Q.append(MoveInfo(MoveType::PROMOTION,cur));
+            if (cur.second == 1 || cur.second == 8) Q.append(MoveInfo(MoveType::PROMOTION,cur));
             else Q.append(MoveInfo(MoveType::CAPTURE,cur));
         }
     }

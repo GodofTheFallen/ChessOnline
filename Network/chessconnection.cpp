@@ -1,56 +1,71 @@
 #include "chessconnection.h"
 
-#include <QMessageBox>
-#include <QTextCodec>
+ChessConnection::ChessConnection(bool _isHost): Host(_isHost)
+{
+    Server = nullptr;
+    Socket = nullptr;
+}
+
+ChessConnection::~ChessConnection()
+{
+    disConnect();
+}
 
 bool ChessConnection::isHost() const
 {
     return Host;
 }
 
-void ChessConnection::setHost(bool value)
+int ChessConnection::startHost()
 {
-    Host = value;
-    if (Server) delete Server;
-    Server = nullptr;
-    if (Socket) delete Socket;
-    Socket = nullptr;
-}
-
-void ChessConnection::startHost()
-{
-    Waiting *Msg = new Waiting;
-    Msg->setWindowTitle("");
-    int timecnt=0;
-    Msg->setText("等待连接……"+QString::number(timecnt));
-    Msg->show();
-    if (Ticker) delete Ticker;
-    Ticker = new QTimer;
-    connect(Msg,&QMessageBox::rejected,this,[this]{
-        if (Ticker) delete Ticker;
-        Ticker = nullptr;
-        Server->close();
-        delete Server;
-        Server = nullptr;
-        emit startHostFailed();
-    });
-    connect(Ticker,&QTimer::timeout,this,[Msg,&timecnt](){
-        ++timecnt;Msg->setText("等待连接……"+QString::number(timecnt));
-    });
-    Ticker->start(1000);
-    Server = new QTcpServer(this);
-    Server->listen();
-    connect(Server,&QTcpServer::newConnection,this,[this]{
-        if (Socket) return;
+    if (Server) return 0;
+    Server = new QTcpServer;
+    if (!Server->listen()) return 0;
+    connect(Server,&QTcpServer::newConnection,[this]{
         Socket = Server->nextPendingConnection();
-        emit startHostSuccess();
-        //connect(Socket,&QTcpSocket::close,)
+        connect(Socket,&QTcpSocket::readyRead,this,&ChessConnection::getMsg);
+        emit connectionSuccess();
     });
+    return Server->serverPort();
 }
 
-ChessConnection::ChessConnection(QObject *parent) : QObject(parent)
+void ChessConnection::disConnect()
 {
-    Server = nullptr;
-    Socket = nullptr;
-    Ticker = nullptr;
+    if (Server) {Server->close(); delete Server;}
+    if (Socket) {Socket->close(); delete Socket;}
+}
+
+void ChessConnection::startConnect(const QHostAddress & _hostAdd, quint16 _port)
+{
+    if (isHost()) return;
+    if (Socket) return;
+    Socket = new QTcpSocket;
+    connect(Socket,&QTcpSocket::connected,this,&ChessConnection::connectionSuccess);
+    Socket->connectToHost(_hostAdd,_port);
+    connect(Socket,&QTcpSocket::readyRead,this,&ChessConnection::getMsg);
+}
+
+bool ChessConnection::sendMsg(const ChessMessage &Msg)
+{
+    Socket->write(Msg.transToJson().toJson());
+    return Socket->waitForBytesWritten();
+}
+
+void ChessConnection::getMsg()
+{
+    QJsonDocument JD = QJsonDocument::fromJson(Socket->readAll());
+    qDebug() << JD;
+    if (JD.array().at(0).isString()) emit ruleReceived(JD.array().at(1).toInt());
+    else emit messsageReady(ChessMessage(JD));
+}
+
+bool ChessConnection::sendRules(int time)
+{
+    QJsonArray JA;
+    JA.append("Time");
+    JA.append(time);
+    QJsonDocument JD;
+    JD.setArray(JA);
+    Socket->write(JD.toJson());
+    return Socket->waitForBytesWritten();
 }

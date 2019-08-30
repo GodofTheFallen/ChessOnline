@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = ChessOnline
 TEMPLATE = app
+RC_ICONS = chess.ico
+VERSION = 1.0
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -34,12 +36,13 @@ SOURCES += \
         Chessman/chessmanpawn.cpp \
         Chessman/chessmanqueen.cpp \
         Chessman/chessmanrook.cpp \
+        Chessman/pawnpromotion.cpp \
         Network/chessconnection.cpp \
         Network/chessmessage.cpp \
         Network/connectserver.cpp \
         Network/startserver.cpp \
-        Network/waiting.cpp \
         chessboard.cpp \
+        gamesetting.cpp \
         main.cpp \
         mainwindow.cpp
 
@@ -53,18 +56,20 @@ HEADERS += \
         Chessman/chessmanqueen.h \
         Chessman/chessmanrook.h \
         Chessman/chessmen \
+        Chessman/pawnpromotion.h \
         Network/chessconnection.h \
         Network/chessmessage.h \
         Network/connectserver.h \
         Network/startserver.h \
-        Network/waiting.h \
         chessboard.h \
+        gamesetting.h \
         mainwindow.h
 
 FORMS += \
+        Chessman/pawnpromotion.ui \
         Network/connectserver.ui \
         Network/startserver.ui \
-        Network/waiting.ui \
+        gamesetting.ui \
         mainwindow.ui
 
 # Default rules for deployment.
@@ -74,3 +79,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resources.qrc
+
+DISTFILES +=

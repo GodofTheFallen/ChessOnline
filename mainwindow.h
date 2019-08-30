@@ -2,8 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileDialog>
+#include <QErrorMessage>
+#include <QMessageBox>
 #include "chessboard.h"
-#include "Network/chessconnection.h"
+#include "gamesetting.h"
 #include "Network/startserver.h"
 #include "Network/connectserver.h"
 
@@ -24,20 +27,32 @@ private slots:
 
     void on_action_connect_triggered();
 
-    void onServeruiAccept();
+    void on_action_setting_triggered();
 
-    void onConnectuiAccept();
+    void on_action_load_triggered();
 
+    void gameStart(ChessConnection *);
 
+    void sendMsg(const ChessMessage &);
+
+    void getMsg(ChessMessage);
+
+    void on_pushButton_Submit_clicked();
+
+    void on_action_loaddefault_triggered();
+
+    void on_action_save_triggered();
 
 private:
     Ui::MainWindow *ui;
-    ChessBoard CB;
 
-    StartServer *serverUi;
-    ConnectServer *connectUi;
+    ChessBoard *CB;
 
-    ChessConnection network;
+    ChessColor firstPlayer;
+
+    ChessConnection *network;
+
+    QErrorMessage *ErrMsg;
 };
 
 #endif // MAINWINDOW_H

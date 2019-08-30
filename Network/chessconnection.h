@@ -5,9 +5,9 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTimer>
-#include "waiting.h"
+#include "chessmessage.h"
 
-class ChessConnection : public QObject
+class ChessConnection: public QObject
 {
     Q_OBJECT
 
@@ -16,23 +16,30 @@ private:
     QTcpServer *Server;
     QTcpSocket *Socket;
 
-    QTimer *Ticker;
+signals:
+    void connectionSuccess();
+
+    void messsageReady(ChessMessage);
+
+    void ruleReceived(int);
 
 public:
-    explicit ChessConnection(QObject *parent = nullptr);
+    ChessConnection(bool _isHost);
+    ~ChessConnection();
 
     bool isHost() const;
 
-signals:
-    void startHostFailed();
+    int startHost();
 
-    void startHostSuccess();
+    void disConnect();
 
-public slots:
-    void setHost(bool value);
+    void startConnect(const QHostAddress &, quint16);
 
-    void startHost();
+    bool sendMsg(const ChessMessage&);
 
+    void getMsg();
+
+    bool sendRules(int);
 };
 
 #endif // CHESSCONNECTION_H

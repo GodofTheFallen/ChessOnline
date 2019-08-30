@@ -12,5 +12,7 @@
         <file>Chessman/pic/white_pawn.png</file>
         <file>Chessman/pic/white_queen.png</file>
         <file>Chessman/pic/white_rook.png</file>
+        <file>chess.ico</file>
+        <file>warning.ico</file>
     </qresource>
 </RCC>

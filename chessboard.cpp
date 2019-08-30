@@ -1,8 +1,84 @@
 #include "chessboard.h"
+#include "Chessman/pawnpromotion.h"
+#include "ui_pawnpromotion.h"
+#include <QTextStream>
 #include <cmath>
+
+QList<ChessInfo> ChessBoard::getChessInfoList() const
+{
+    return ChessInfoList;
+}
+
+QString ChessBoard::getRemBoard()
+{
+    QString RemS;
+    QTextStream REM(&RemS,QIODevice::WriteOnly);
+    QMap<ChessType,QList<POS>> WMap,BMap;
+    for (auto CI : ChessInfoList) {
+        switch (CI.getColor()) {
+        case ChessColor::WHITE:
+            WMap[CI.getType()].append(CI.getPos()); break;
+        case ChessColor::BLACK:
+            BMap[CI.getType()].append(CI.getPos()); break;
+        }
+    }
+    auto writeName = [&](ChessType K) {
+        switch (K) {
+        case ChessType::KING:
+            REM << "king "; break;
+        case ChessType::PAWN:
+            REM << "pawn "; break;
+        case ChessType::ROOK:
+            REM << "rook "; break;
+        case ChessType::QUEEN:
+            REM << "queen "; break;
+        case ChessType::BISHOP:
+            REM << "bishop "; break;
+        case ChessType::KNIGHT:
+            REM << "knight "; break;
+        }
+    };
+    auto writeWhite = [&]{
+        REM << "white" << endl;
+        for (auto KY : WMap.uniqueKeys()) {
+            if (WMap[KY].empty()) continue;
+            writeName(KY);
+            REM << WMap[KY].size();
+            for (auto P : WMap[KY])
+                REM << " " << QChar(P.first + 'a' -1) << P.second;
+            REM << endl;
+        }
+    };
+    auto writeBlack = [&]{
+        REM << "black" << endl;
+        for (auto KY : BMap.uniqueKeys()) {
+            if (BMap[KY].empty()) continue;
+            writeName(KY);
+            REM << BMap[KY].size();
+            for (auto P : BMap[KY])
+                REM << " " << QChar(P.first + 'a' -1) << P.second;
+            REM << endl;
+        }
+    };
+    if ((Player == ChessColor::WHITE && Operating) || (Player == ChessColor::BLACK && !Operating)) {
+        writeWhite();
+        writeBlack();
+    }
+    else {
+        writeBlack();
+        writeWhite();
+    }
+    return RemS;
+}
+
+int ChessBoard::getTIME_MAX() const
+{
+    return TIME_MAX;
+}
 
 ChessMessage ChessBoard::genMessage(MsgType _Type)
 {
+    saveToMsg();
     return ChessMessage(ChessInfoList, _Type);
 }
 
@@ -10,6 +86,8 @@ ChessBoard::ChessBoard(QWidget *parent) : QWidget(parent)
 {
     connect(&Timer,&QTimer::timeout,this,&ChessBoard::timeDec);
     for (int i = 0; i < 64; ++i) Board[i] = nullptr;
+    TIME_MAX = 30;
+    Player = ChessColor::WHITE;
     initialize();
 }
 
@@ -62,6 +140,12 @@ void ChessBoard::startOperating()
     Timer.start(1000);
 }
 
+void ChessBoard::stopOperating()
+{
+    Timer.stop();
+    Operating = false;
+}
+
 void ChessBoard::setTIME_MAX(int value)
 {
     TIME_MAX = value;
@@ -70,8 +154,12 @@ void ChessBoard::setTIME_MAX(int value)
 void ChessBoard::loadFromMsg()
 {
     for (int i = 0; i < 64; ++i) if (Board[i]) {delete Board[i]; Board[i] = nullptr;}
-    for (auto CI : ChessInfoList)
+    bool King = false;
+    for (auto CI : ChessInfoList) {
         Board[curve(CI.getPos())] = CreateChessman(CI);
+        if (CI.getType() == ChessType::KING && CI.getColor() == Player) King = true;
+    }
+    if (!King) emit sendMsg(ChessMessage(ChessInfoList,MsgType::Win));
 }
 
 void ChessBoard::saveToMsg()
@@ -82,26 +170,11 @@ void ChessBoard::saveToMsg()
             if (Board[curve(i,j)]) ChessInfoList.append(toChessInfo(Board[curve(i,j)]));
 }
 
-void ChessBoard::timeDec()
+void ChessBoard::receiveMsg(ChessMessage Msg)
 {
-    --remTime;
-    emit timeDisplay(remTime);
-    if (!remTime) {
-        Timer.stop();
-        timeUseUp();
-    }
-}
-
-void ChessBoard::stopOperating()
-{
-    Timer.stop();
-    Operating = false;
-}
-
-void ChessBoard::timeUseUp()
-{
-    emit sendMsg(genMessage(MsgType::Timeout));
-    stopOperating();
+    ChessInfoList = Msg.getChessmenInfo();
+    loadFromMsg();
+    if (Msg.getType() == MsgType::Move) startOperating();
 }
 
 void ChessBoard::initialize()
@@ -118,8 +191,8 @@ void ChessBoard::initialize()
     ChessInfoList.append(ChessInfo(ChessType::ROOK,ChessColor::BLACK,POS(1,8)));
     ChessInfoList.append(ChessInfo(ChessType::KNIGHT,ChessColor::BLACK,POS(2,8)));
     ChessInfoList.append(ChessInfo(ChessType::BISHOP,ChessColor::BLACK,POS(3,8)));
-    ChessInfoList.append(ChessInfo(ChessType::KING,ChessColor::BLACK,POS(4,8)));
-    ChessInfoList.append(ChessInfo(ChessType::QUEEN,ChessColor::BLACK,POS(5,8)));
+    ChessInfoList.append(ChessInfo(ChessType::QUEEN,ChessColor::BLACK,POS(4,8)));
+    ChessInfoList.append(ChessInfo(ChessType::KING,ChessColor::BLACK,POS(5,8)));
     ChessInfoList.append(ChessInfo(ChessType::BISHOP,ChessColor::BLACK,POS(6,8)));
     ChessInfoList.append(ChessInfo(ChessType::KNIGHT,ChessColor::BLACK,POS(7,8)));
     ChessInfoList.append(ChessInfo(ChessType::ROOK,ChessColor::BLACK,POS(8,8)));
@@ -128,9 +201,69 @@ void ChessBoard::initialize()
         ChessInfoList.append(ChessInfo(ChessType::PAWN,ChessColor::BLACK,POS(i,7)));
     }
     loadFromMsg();
-    TIME_MAX = 30;
-    Player = ChessColor::WHITE;
     ChosenChessman = nullptr;
+    repaint();
+}
+
+void ChessBoard::timeDec()
+{
+    --remTime;
+    emit timeDisplay(remTime);
+    if (!remTime) {
+        Timer.stop();
+        timeUseUp();
+    }
+}
+
+void ChessBoard::timeUseUp()
+{
+    emit sendMsg(ChessMessage(ChessInfoList,MsgType::Timeout));
+    stopOperating();
+}
+
+void ChessBoard::handleMove(MoveInfo mv)
+{
+    switch (mv.first) {
+    case MoveType::MOVE:
+        Board[curve(ChosenChessman->getPos())] = nullptr;
+        ChosenChessman->setPos(mv.second);
+        Board[curve(mv.second)] = ChosenChessman;
+        break;
+    case MoveType::CAPTURE:
+        delete Board[curve(mv.second)];
+        Board[curve(ChosenChessman->getPos())] = nullptr;
+        ChosenChessman->setPos(mv.second);
+        Board[curve(mv.second)] = ChosenChessman;
+        break;
+    case MoveType::PROMOTION:
+    {
+        AbstractChessman *NewChessman;
+        PawnPromotion *PP = new PawnPromotion(this);
+        //connect(PP,&PawnPromotion::rejected,[&]{PP->exec();});
+        connect(PP,&PawnPromotion::accepted,[this,PP,mv,&NewChessman]{
+            switch (PP->ui->comboBox->currentIndex()) {
+            case 0: NewChessman = new ChessmanQueen(Player,mv.second); break;
+            case 1: NewChessman = new ChessmanBishop(Player,mv.second); break;
+            case 2: NewChessman = new ChessmanKnight(Player,mv.second); break;
+            case 3: NewChessman = new ChessmanRook(Player,mv.second); break;
+            } ;
+        });
+        PP->exec();
+        PP->deleteLater();
+        if (Board[curve(mv.second)]) delete Board[curve(mv.second)];
+        Board[curve(ChosenChessman->getPos())] = nullptr;
+        delete ChosenChessman;
+        ChosenChessman = NewChessman;
+        Board[curve(mv.second)] = ChosenChessman;
+    }
+        break;
+    case MoveType::CASTLING:
+        break;
+    }
+    ChosenChessman = nullptr;
+    MoveList.clear();
+    emit sendMsg(genMessage(MsgType::Move));
+    stopOperating();
 }
 
 void ChessBoard::paintEvent(QPaintEvent *)
@@ -209,8 +342,8 @@ void ChessBoard::paintEvent(QPaintEvent *)
 void ChessBoard::mousePressEvent(QMouseEvent *event)
 {
     if (!Operating) return;
-    int x = int(floor((event->x()-OPos.x())/XScale));
-    int y = int(floor((event->y()-OPos.y())/YScale));
+    int x = int(floor((event->x()-OPos.x())/XScale)+1);
+    int y = int(floor((event->y()-OPos.y())/YScale)+1);
     if (!check(x,y)) return;
     if (event->button() == Qt::LeftButton) {
         if (!ChosenChessman) {
@@ -218,10 +351,21 @@ void ChessBoard::mousePressEvent(QMouseEvent *event)
             if (Board[curve(x,y)]->getColor() != Player) return;
             ChosenChessman = Board[curve(x,y)];
             MoveList = ChosenChessman->getMoves(Board);
+            repaint();
+        }
+        else {
+            for (auto mv : MoveList) {
+                if (mv.second==POS(x,y)) {
+                    handleMove(mv);
+                    repaint();
+                    return;
+                }
+            }
         }
     }
     else {
         ChosenChessman = nullptr;
         MoveList.clear();
+        repaint();
     }
 }
