@@ -188,10 +188,12 @@ void MainWindow::sendMsg(const ChessMessage &Msg)
         QMessageBox::information(this,"游戏结束","和局（逼和）",QMessageBox::Ok);
         close();
         break;
-    default:
+    case MsgType::Move:
+        ui->label_status->setText("等待");
+        break;
+    case MsgType::Load:
         break;
     }
-    ui->label_status->setText("等待");
 }
 
 void MainWindow::getMsg(ChessMessage Msg)
@@ -214,14 +216,19 @@ void MainWindow::getMsg(ChessMessage Msg)
         QMessageBox::information(this,"游戏结束","和局（逼和）",QMessageBox::Ok);
         close();
         break;
-    default:
+    case MsgType::Move:
+        ui->label_status->setText("行棋");
         CB->receiveMsg(Msg);
+        break;
+    case MsgType::Load:
+        CB->receiveMsg(Msg);
+        break;
     }
-    ui->label_status->setText("行棋");
 }
 
 void MainWindow::on_pushButton_Submit_clicked()
 {
+    CB->stopOperating();
     sendMsg(ChessMessage(CB->getChessInfoList(),MsgType::Submission));
 }
 
