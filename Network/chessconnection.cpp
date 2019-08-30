@@ -1,5 +1,7 @@
 #include "chessconnection.h"
 
+#include <QEventLoop>
+
 ChessConnection::ChessConnection(bool _isHost): Host(_isHost)
 {
     Server = nullptr;
@@ -18,6 +20,7 @@ bool ChessConnection::isHost() const
 
 int ChessConnection::startHost()
 {
+    if (!isHost()) return 0;
     if (Server) return 0;
     Server = new QTcpServer;
     if (!Server->listen()) return 0;
@@ -47,16 +50,36 @@ void ChessConnection::startConnect(const QHostAddress & _hostAdd, quint16 _port)
 
 bool ChessConnection::sendMsg(const ChessMessage &Msg)
 {
-    Socket->write(Msg.transToJson().toJson());
+    QByteArray QBA;
+    QDataStream QDS(&QBA,QIODevice::WriteOnly);
+    QDS.setVersion(QDataStream::Qt_5_13);
+    QDS << Msg.transToJson().toJson();
+    Socket->write(QBA);
+    //Socket->flush();
+    qDebug() << "send " << Msg.transToJson();
     return Socket->waitForBytesWritten();
 }
 
 void ChessConnection::getMsg()
 {
-    QJsonDocument JD = QJsonDocument::fromJson(Socket->readAll());
-    qDebug() << JD;
-    if (JD.array().at(0).isString()) emit ruleReceived(JD.array().at(1).toInt());
-    else emit messsageReady(ChessMessage(JD));
+    QByteArray QBA = Socket->readAll();
+    QDataStream QDS(&QBA,QIODevice::ReadOnly);
+    QDS.setVersion(QDataStream::Qt_5_13);
+    QByteArray Sect;
+    do {
+        QDS >> Sect;
+        if (Sect.isEmpty()) return;
+        QJsonDocument JD;
+        QJsonParseError ERR;
+        JD = QJsonDocument::fromJson(Sect,&ERR);
+        qDebug() << "receive " << JD;
+        if (JD.isNull()) {
+            qDebug() << ERR.errorString();
+            throw ERR.errorString();
+        }
+        if (JD.array().at(0).isString()) emit ruleReceived(JD.array().at(1).toInt());
+        else emit messsageReady(ChessMessage(JD));
+    }while (1);
 }
 
 bool ChessConnection::sendRules(int time)
@@ -66,6 +89,10 @@ bool ChessConnection::sendRules(int time)
     JA.append(time);
     QJsonDocument JD;
     JD.setArray(JA);
-    Socket->write(JD.toJson());
-    return Socket->waitForBytesWritten();
+    QByteArray QBA;
+    QDataStream QDS(&QBA,QIODevice::WriteOnly);
+    QDS.setVersion(QDataStream::Qt_5_13);
+    QDS << JD.toJson();
+    Socket->write(QBA);
+    return true;
 }

@@ -87,6 +87,8 @@ ChessBoard::ChessBoard(QWidget *parent) : QWidget(parent)
     connect(&Timer,&QTimer::timeout,this,&ChessBoard::timeDec);
     for (int i = 0; i < 64; ++i) Board[i] = nullptr;
     TIME_MAX = 30;
+    Operating = false;
+    remTime = 0;
     Player = ChessColor::WHITE;
     initialize();
 }
@@ -151,7 +153,7 @@ void ChessBoard::setTIME_MAX(int value)
     TIME_MAX = value;
 }
 
-void ChessBoard::loadFromMsg()
+void ChessBoard::loadFromMsg() //rebuild
 {
     for (int i = 0; i < 64; ++i) if (Board[i]) {delete Board[i]; Board[i] = nullptr;}
     bool King = false;
@@ -174,6 +176,7 @@ void ChessBoard::receiveMsg(ChessMessage Msg)
 {
     ChessInfoList = Msg.getChessmenInfo();
     loadFromMsg();
+    update();
     if (Msg.getType() == MsgType::Move) startOperating();
 }
 

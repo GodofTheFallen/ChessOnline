@@ -4,7 +4,7 @@
 #include <QPixmap>
 #include "chessinfo.h"
 
-class AbstractChessman
+class AbstractChessman //rebuild + CheckVal + getAtkRange
 {
 protected:
     ChessType type;

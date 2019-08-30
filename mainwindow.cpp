@@ -145,12 +145,13 @@ void MainWindow::gameStart(ChessConnection *_net)
     connect(network,&ChessConnection::ruleReceived,[this](int TIME){CB->setTIME_MAX(TIME);});
     if (network->isHost()) network->sendRules(CB->getTIME_MAX());
     QEventLoop loop;
-    QTimer::singleShot(100, &loop, SLOT(quit()));
+    QTimer::singleShot(1000, &loop, SLOT(quit()));
     loop.exec();
     ui->action_load->setEnabled(false);
     ui->action_loaddefault->setEnabled(false);
     ui->action_host->setEnabled(false);
     ui->action_connect->setEnabled(false);
+    ui->action_setting->setEnabled(false);
     ui->action_save->setEnabled(true);
     ui->pushButton_Submit->setEnabled(true);
     if (network->isHost()) {

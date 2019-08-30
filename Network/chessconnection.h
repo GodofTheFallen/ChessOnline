@@ -15,6 +15,7 @@ private:
     bool Host;
     QTcpServer *Server;
     QTcpSocket *Socket;
+    static const int retry = 5;
 
 signals:
     void connectionSuccess();
