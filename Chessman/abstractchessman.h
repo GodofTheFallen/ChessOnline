@@ -41,4 +41,8 @@ POS operator + (const POS &P1,const POS &P2);
 
 POS operator += (POS &P1,const POS &P2);
 
+bool* getAtkRange(AbstractChessman*[],ChessColor);
+
+bool checkMoveValidity(MoveInfo,POS,AbstractChessman*[]);
+
 #endif // ABSTRACTCHESSMAN_H

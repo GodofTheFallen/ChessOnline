@@ -50,7 +50,7 @@ void StartServer::cancel()
 {
     if (!status) return;
     status = false;
-    ui->pushButton->setText("开始连接");
+    ui->pushButton->setText("建立主机");
     if (Timer) delete Timer;
     Timer = nullptr;
     if (newConnection) delete newConnection;

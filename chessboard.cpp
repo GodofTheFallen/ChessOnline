@@ -156,12 +156,30 @@ void ChessBoard::setTIME_MAX(int value)
 void ChessBoard::loadFromMsg() //rebuild
 {
     for (int i = 0; i < 64; ++i) if (Board[i]) {delete Board[i]; Board[i] = nullptr;}
-    bool King = false;
+    POS King;
     for (auto CI : ChessInfoList) {
         Board[curve(CI.getPos())] = CreateChessman(CI);
-        if (CI.getType() == ChessType::KING && CI.getColor() == Player) King = true;
+        if (CI.getType() == ChessType::KING && CI.getColor() == Player) King = CI.getPos();
     }
-    if (!King) emit sendMsg(ChessMessage(ChessInfoList,MsgType::Win));
+    repaint();
+    bool *atk = getAtkRange(Board,Player);
+    bool Check = atk[curve(King)];
+    bool NoMove = true;
+    emit inCheck(atk[curve(King)]);
+    for (int i = 0; i < 64; ++i) if (Board[i]) if (Board[i]->getColor() == Player) {
+                if (!NoMove) break;
+                QList<MoveInfo> curMVList = Board[i]->getMoves(Board);
+                for (auto mv : curMVList) {
+                    if (checkMoveValidity(mv,Board[i]->getPos(),Board)) {
+                        NoMove = false;
+                        break;
+                    }
+                }
+            }
+    if (NoMove) {
+        if (Check) emit sendMsg(genMessage(MsgType::Win));
+        else emit sendMsg(genMessage(MsgType::Draw));
+    }
 }
 
 void ChessBoard::saveToMsg()
@@ -170,13 +188,14 @@ void ChessBoard::saveToMsg()
     for (int i = 1; i <= 8; ++i)
         for (int j = 1; j <= 8; ++j)
             if (Board[curve(i,j)]) ChessInfoList.append(toChessInfo(Board[curve(i,j)]));
+    emit inCheck(false);
 }
 
 void ChessBoard::receiveMsg(ChessMessage Msg)
 {
     ChessInfoList = Msg.getChessmenInfo();
     loadFromMsg();
-    update();
+    repaint();
     if (Msg.getType() == MsgType::Move) startOperating();
 }
 
@@ -261,6 +280,24 @@ void ChessBoard::handleMove(MoveInfo mv)
     }
         break;
     case MoveType::CASTLING:
+        switch(mv.second.first) {
+        case 3:
+            Board[curve(ChosenChessman->getPos())] = nullptr;
+            ChosenChessman->setPos(mv.second);
+            Board[curve(mv.second)] = ChosenChessman;
+            Board[curve(1,mv.second.second)]->setPos(mv.second+POS(1,0));
+            Board[curve(mv.second+POS(1,0))] = Board[curve(1,mv.second.second)];
+            Board[curve(1,mv.second.second)] = nullptr;
+            break;
+        case 7:
+            Board[curve(ChosenChessman->getPos())] = nullptr;
+            ChosenChessman->setPos(mv.second);
+            Board[curve(mv.second)] = ChosenChessman;
+            Board[curve(8,mv.second.second)]->setPos(mv.second+POS(-1,0));
+            Board[curve(mv.second+POS(-1,0))] = Board[curve(8,mv.second.second)];
+            Board[curve(8,mv.second.second)] = nullptr;
+            break;
+        }
         break;
     }
     ChosenChessman = nullptr;
@@ -353,7 +390,12 @@ void ChessBoard::mousePressEvent(QMouseEvent *event)
             if (!Board[curve(x,y)]) return;
             if (Board[curve(x,y)]->getColor() != Player) return;
             ChosenChessman = Board[curve(x,y)];
-            MoveList = ChosenChessman->getMoves(Board);
+            QList<MoveInfo> curMVList = ChosenChessman->getMoves(Board);
+            MoveList.clear();
+            for (auto mv : curMVList) {
+                if (checkMoveValidity(mv,ChosenChessman->getPos(),Board))
+                    MoveList.append(mv);
+            }
             repaint();
         }
         else {

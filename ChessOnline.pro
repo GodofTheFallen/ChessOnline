@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ChessOnline
 TEMPLATE = app
 RC_ICONS = chess.ico
-VERSION = 1.0
+VERSION = 1.1
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings

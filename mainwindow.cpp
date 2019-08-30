@@ -18,12 +18,15 @@ MainWindow::MainWindow(QWidget *parent) :
     CB->layout();
     connect(CB, &ChessBoard::timeDisplay, [this](int num){ui->lcdNumber_Timer->display(num);});
     connect(CB, &ChessBoard::sendMsg,this,&MainWindow::sendMsg);
+    connect(CB, &ChessBoard::inCheck, [this](bool inC){ui->label_check->setVisible(inC);});
 
     ErrMsg = new QErrorMessage(this);
     ErrMsg->setWindowTitle("Error");
     ErrMsg->setWindowIcon(QIcon(":/warning.ico"));
 
     firstPlayer = ChessColor::WHITE;
+
+    //CB->startOperating();
 }
 
 MainWindow::~MainWindow()
@@ -141,6 +144,7 @@ void MainWindow::gameStart(ChessConnection *_net)
 {
     if (network) return;
     network = _net;
+    if (!network->isHost()) CB->Player = ChessColor::BLACK;
     connect(network,&ChessConnection::messsageReady,[this](ChessMessage Msg){getMsg(Msg);});
     connect(network,&ChessConnection::ruleReceived,[this](int TIME){CB->setTIME_MAX(TIME);});
     if (network->isHost()) network->sendRules(CB->getTIME_MAX());
@@ -162,9 +166,6 @@ void MainWindow::gameStart(ChessConnection *_net)
             return;
         }
         else sendMsg(ChessMessage(CB->getChessInfoList(),MsgType::Move));
-    }
-    else {
-        CB->Player = ChessColor::BLACK;
     }
     ui->label_status->setText("等待");
 }

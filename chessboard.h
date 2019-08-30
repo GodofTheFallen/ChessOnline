@@ -50,6 +50,7 @@ public:
 signals:
     void timeDisplay(int);
     void sendMsg(const ChessMessage &);
+    void inCheck(bool);
 
 public slots:
     void startOperating();
