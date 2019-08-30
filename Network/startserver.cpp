@@ -6,6 +6,8 @@ StartServer::StartServer(QWidget *parent) :
     ui(new Ui::StartServer)
 {
     ui->setupUi(this);
+    status = false;
+    newConnection = nullptr;
 }
 
 StartServer::~StartServer()
